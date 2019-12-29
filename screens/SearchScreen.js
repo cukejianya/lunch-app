@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import {
   Button,
+  FlatList,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from 'react-native';
 //import { Marker, Polyline } from 'react-native-maps'
 import { MapView } from 'expo'
+import { Ionicons } from '@expo/vector-icons'
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 
@@ -15,12 +18,46 @@ import { MonoText } from '../components/StyledText';
 const SEARCH = gql`
   query SearchPlace($lat: Float, $lng: Float, $title: String) {
     searchPlace(lat: $lat, lng: $lng, title: $title) {
-      title
+      id
+      highlightedTitle
       vicinity
       category
     }
   }
 `;
+
+function Bold({ text }) {
+  return <Text style={{fontWeight: 'bold'}}>{ text }</Text>
+}
+
+function Item({ item }) {
+  if (item) {
+    var title = item.highlightedTitle.split(" ").map((word, id) => {
+      let re = /<b>(.*)<\/b>/;
+      let highlighted = (word.match(re) || ["",""])[1]
+      let text = word.replace(re, "");
+      return (
+        <Text key={id}>
+          <Bold text={highlighted} />
+          {text + " "}
+        </Text>
+      )
+    })
+  }
+  return (
+    <View style={ styles.itemContainer }>
+      <Ionicons style={styles.itemIcon} name="md-pin" size={30} color="black" />
+      <View style={ styles.itemText }>
+        <Text style={styles.itemTitle}>
+          { title }
+        </Text>
+        <Text style={styles.itemAddress}>
+          {(item.vicinity || "").replace(/<br\/>/, " ")}
+        </Text>
+      </View>
+    </View>
+  )
+}
 
 export default function SearchScreen() {
   const [search, setSearch] = useState(0);
@@ -30,7 +67,6 @@ export default function SearchScreen() {
   
   var variables = { title: search, lat, lng} 
   const {loading, error, data} = useQuery(SEARCH, { variables })
-  console.log(variables, data)
 
   //if (error) {
   //  console.log(error, search)
@@ -38,11 +74,18 @@ export default function SearchScreen() {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.loginInput}
-        autoCapitalize='none'
-        placeholder='Pick A Lunch Spot'
-        onChangeText={setSearch}
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.loginInput}
+          autoCapitalize='none'
+          placeholder='Pick A Lunch Spot'
+          onChangeText={setSearch}
+         />
+       </View>
+       <FlatList
+         data={(data || {}).searchPlace}
+         renderItem={({ item }) => <Item item={item} />}
+         keyExtractor={item => item.id}
        />
     </View>
   );
@@ -52,16 +95,48 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    justifyContent: 'center',
+    marginTop: 60,
+  },
+  inputContainer: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgrey',
   },
   loginInput: {
     height: 40,
     marginLeft: 40,
     marginRight: 40,
+    marginBottom: 20,
     paddingLeft: 10,
     paddingRight: 10,
     borderColor: 'gray',
     borderWidth: 1,
     fontSize: 20,
+  },
+  itemContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 20,
+    marginRight: 40,
+  },
+  itemIcon: {
+    marginTop: 15,
+    paddingBottom: 15,
+  },
+  itemText: {
+    flex: 1,
+    flexDirection: 'column',
+    marginTop: 15,
+    marginLeft: 10,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgrey',
+  },
+  itemTitle: {
+    fontSize: 20,
+  },
+  itemAddress: {
+    fontSize: 16, 
+    color: 'grey',
   }
 });

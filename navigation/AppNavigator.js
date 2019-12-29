@@ -11,6 +11,6 @@ export default createAppContainer(
     Auth: LoginScreen,
     Search: SearchScreen,
   }, {
-    initialRouteName: 'App',
+    initialRouteName: 'Search',
   })
 );
