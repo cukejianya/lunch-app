@@ -5,6 +5,8 @@ import {
   TextInput,
   View,
 } from 'react-native';
+//import { Marker, Polyline } from 'react-native-maps'
+import { MapView } from 'expo'
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
 
