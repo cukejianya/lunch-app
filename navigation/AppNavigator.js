@@ -1,16 +1,22 @@
 import React from 'react';
-import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import LoginScreen from '../screens/LoginScreen'
 import SearchScreen from '../screens/SearchScreen'
-import MainTabNavigator from './MainTabNavigator';
+import MapScreen from '../screens/MapScreen'
 
-export default createAppContainer(
-  createSwitchNavigator({
-    App: MainTabNavigator,
-    Auth: LoginScreen,
-    Search: SearchScreen,
-  }, {
-    initialRouteName: 'Search',
-  })
-);
+const Stack = createStackNavigator();
+
+export default function AppNavigator() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Search">
+        <Stack.Screen name="Auth" component={LoginScreen} />
+        <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Screen name="Map" component={MapScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  )
+}
+
