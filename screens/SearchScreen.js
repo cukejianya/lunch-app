@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Button,
   FlatList,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 //import { Marker, Polyline } from 'react-native-maps'
@@ -22,6 +23,7 @@ const SEARCH = gql`
       highlightedTitle
       vicinity
       category
+      position
     }
   }
 `;
@@ -30,7 +32,7 @@ function Bold({ text }) {
   return <Text style={{fontWeight: 'bold'}}>{ text }</Text>
 }
 
-function Item({ item }) {
+function Item({ item, onSelect }) {
   if (item) {
     var title = item.highlightedTitle.split(" ").map((word, id) => {
       let re = /<b>(.*)<\/b>/;
@@ -45,7 +47,9 @@ function Item({ item }) {
     })
   }
   return (
-    <View style={ styles.itemContainer }>
+    <TouchableOpacity
+      onPress={() => onSelect(item)}
+      style={ styles.itemContainer }>
       <Ionicons style={styles.itemIcon} name="md-pin" size={30} color="black" />
       <View style={ styles.itemText }>
         <Text style={styles.itemTitle}>
@@ -55,22 +59,28 @@ function Item({ item }) {
           {(item.vicinity || "").replace(/<br\/>/, " ")}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
-export default function SearchScreen() {
+export default function SearchScreen({ navigation }) {
   const [search, setSearch] = useState(0);
+  const [place, setPlace] = useState({});
   let lat = 39.33136;
   let lng = -76.63226;
-
   
   var variables = { title: search, lat, lng} 
   const {loading, error, data} = useQuery(SEARCH, { variables })
-
+  
+  const getPlace = useCallback( place_obj => {
+      navigation.navigate('Map', place_obj)
+      console.log(place_obj)
+    }, [place]
+  )
   //if (error) {
   //  console.log(error, search)
   //}
+  console.log(place);
 
   return (
     <View style={styles.container}>
@@ -84,7 +94,12 @@ export default function SearchScreen() {
        </View>
        <FlatList
          data={(data || {}).searchPlace}
-         renderItem={({ item }) => <Item item={item} />}
+         renderItem={({ item }) => (
+           <Item 
+             item={item} 
+             onSelect={getPlace}
+           />
+         )}
          keyExtractor={item => item.id}
        />
     </View>
@@ -95,7 +110,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: 60,
+    paddingTop: 20,
   },
   inputContainer: {
     borderBottomWidth: 1,

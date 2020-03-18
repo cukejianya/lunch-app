@@ -16,25 +16,36 @@ import { useQuery } from '@apollo/react-hooks';
 
 import { MonoText } from '../components/StyledText';
 
-export default function MapScreen(obj) {
-  console.log(obj);
+export default function MapScreen({navigation, route}) {
+  console.log(route.params)
   return (
     <View style={styles.container}>
       <MapView 
         initialRegion={getInitialState(route.params.position).region}
-        style={styles.mapStyle} />
+        style={styles.mapStyle} >
+        <Marker
+          coordinate={getLatLng(route.params.position)} />
+      </MapView>
     </View>
   );
 }
 
-function getInitialState([lat, lng]) {
+function getInitialState(coordArray) {
+  let {latitude, longitude} = getLatLng(coordArray)
   return {
     region: {
-      latitude: lat, 
-      longitude: lng,
-      latitudeDelta: 0.1,
-      longitudeDelta: 0.1,
+      latitude,
+      longitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
     }
+  }
+}
+
+function getLatLng([lat, lng]) {
+  return {
+    latitude: lat, 
+    longitude: lng,
   }
 }
 
