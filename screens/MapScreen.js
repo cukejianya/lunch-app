@@ -24,7 +24,8 @@ export default function MapScreen({navigation, route}) {
         initialRegion={getInitialState(route.params.position).region}
         style={styles.mapStyle} >
         <Marker
-          coordinate={getLatLng(route.params.position)} />
+          coordinate={getLatLng(route.params.position)}
+          image={require('../assets/images/marker.png')} />
       </MapView>
     </View>
   );
@@ -36,8 +37,8 @@ function getInitialState(coordArray) {
     region: {
       latitude,
       longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
+      latitudeDelta: 0.002,
+      longitudeDelta: 0.002,
     }
   }
 }

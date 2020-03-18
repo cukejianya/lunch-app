@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   Button,
+  Dimensions,
   FlatList,
   StyleSheet,
   Text,
@@ -8,8 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-//import { Marker, Polyline } from 'react-native-maps'
-import { MapView } from 'expo'
+import { Marker, Polyline } from 'react-native-maps'
+import MapView from 'react-native-maps'
 import { Ionicons } from '@expo/vector-icons'
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/react-hooks';
@@ -20,6 +21,7 @@ const SEARCH = gql`
   query SearchPlace($lat: Float, $lng: Float, $title: String) {
     searchPlace(lat: $lat, lng: $lng, title: $title) {
       id
+      title
       highlightedTitle
       vicinity
       category
@@ -31,6 +33,39 @@ const SEARCH = gql`
 function Bold({ text }) {
   return <Text style={{fontWeight: 'bold'}}>{ text }</Text>
 }
+
+function MapElm({position}) {
+  console.log(position)
+  return (
+    <View style={styles.mapContainer}>
+      <MapView 
+        initialRegion={getInitialState(position)}
+        style={styles.mapStyle} >
+        <Marker
+          coordinate={getLatLng(position)}
+          image={require('../assets/images/marker.png')} />
+      </MapView>
+    </View>
+  );
+}
+
+function getInitialState(coordArray) {
+  let {latitude, longitude} = getLatLng(coordArray)
+  return {
+      latitude,
+      longitude,
+      latitudeDelta: 0.002,
+      longitudeDelta: 0.002,
+  }
+}
+
+function getLatLng([lat, lng]) {
+  return {
+    latitude: lat, 
+    longitude: lng,
+  }
+}
+
 
 function Item({ item, onSelect }) {
   if (item) {
@@ -64,23 +99,42 @@ function Item({ item, onSelect }) {
 }
 
 export default function SearchScreen({ navigation }) {
-  const [search, setSearch] = useState(0);
-  const [place, setPlace] = useState({});
+  const [search, setSearch] = useState('');
+  const [place, setPlace] = useState(0);
+  const [textValue, setTextValue] = useState('');
+  const [isInputFocus, setInputFocus] = useState(true)
+  let result; 
+
   let lat = 39.33136;
   let lng = -76.63226;
-  
+
   var variables = { title: search, lat, lng} 
   const {loading, error, data} = useQuery(SEARCH, { variables })
-  
-  const getPlace = useCallback( place_obj => {
-      navigation.navigate('Map', place_obj)
-      console.log(place_obj)
-    }, [place]
-  )
+  const onSelect = (item) => {
+    console.log('Item: ', item)
+    setInputFocus(false)
+    setPlace(item)
+    setSearch(item.title)
+  }
   //if (error) {
   //  console.log(error, search)
   //}
-  console.log(place);
+  if (isInputFocus) {
+    result = (
+       <FlatList
+         data={(data || {}).searchPlace}
+         renderItem={({ item }) => (
+           <Item 
+             item={item} 
+             onSelect={onSelect}
+           />
+         )}
+         keyExtractor={item => item.id}
+       />
+    )
+  } else {
+    result = <MapElm position={place.position} />
+  }
 
   return (
     <View style={styles.container}>
@@ -90,18 +144,11 @@ export default function SearchScreen({ navigation }) {
           autoCapitalize='none'
           placeholder='Pick A Lunch Spot'
           onChangeText={setSearch}
+          onFocus={() => setInputFocus(true)}
+          value={search}
          />
        </View>
-       <FlatList
-         data={(data || {}).searchPlace}
-         renderItem={({ item }) => (
-           <Item 
-             item={item} 
-             onSelect={getPlace}
-           />
-         )}
-         keyExtractor={item => item.id}
-       />
+       {result}
     </View>
   );
 }
@@ -153,5 +200,17 @@ const styles = StyleSheet.create({
   itemAddress: {
     fontSize: 16, 
     color: 'grey',
-  }
+  },
+  mapContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mapStyle: {
+    marginLeft: 10,
+    marginRight: 10,
+    height: 200,
+    width: Dimensions.get('window').width - 20,
+  },
 });
