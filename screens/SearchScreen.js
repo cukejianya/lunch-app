@@ -40,7 +40,9 @@ function MapElm({position}) {
     <View style={styles.mapContainer}>
       <MapView 
         initialRegion={getInitialState(position)}
-        style={styles.mapStyle} >
+        style={styles.mapStyle}
+        scrollEnabled={false}
+      >
         <Marker
           coordinate={getLatLng(position)}
           image={require('../assets/images/marker.png')} />
@@ -204,13 +206,9 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   mapStyle: {
-    marginLeft: 10,
-    marginRight: 10,
     height: 200,
-    width: Dimensions.get('window').width - 20,
+    width: Dimensions.get('window').width,
   },
 });
