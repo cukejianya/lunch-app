@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Button,
   FlatList,
   Keyboard,
   View,
@@ -29,7 +30,11 @@ function Item({ isSelected, item, onSelect }) {
   )
 }
 
-export default function ContactScreen() {
+function getLunchCrew(contacts, selected) {
+  return contacts.filter((obj) => selected.has(obj.id))
+}
+
+export default function ContactScreen({ navigation }) {
   const [search, setSearch] = useState('');
   const [contacts, setContacts] = useState([]);
   const [filterContacts, setFilterContacts] = useState([]);
@@ -44,7 +49,9 @@ export default function ContactScreen() {
         });
 
         let contactData = data;
-        setContacts(contactData);
+        setContacts(contactData.sort((a, b) => {
+          return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; 
+        }));
       }
     })();
   }, []);
@@ -88,6 +95,12 @@ export default function ContactScreen() {
         )}
         keyExtractor={item => item.id}
         extraData={selected}
+      />
+      <Button
+        title="Pick the Place"
+        onPress={ () => navigation.navigate('Search', {
+          contacts: getLunchCrew(contacts, selected),
+        })}
       />
     </View>
   );

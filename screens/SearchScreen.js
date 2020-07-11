@@ -100,13 +100,14 @@ function Item({ item, onSelect }) {
   )
 }
 
-export default function SearchScreen({ navigation }) {
+export default function SearchScreen({ navigation, route }) {
   const [search, setSearch] = useState('');
   const [place, setPlace] = useState(0);
   const [textValue, setTextValue] = useState('');
   const [isInputFocus, setInputFocus] = useState(true)
   let result; 
 
+  console.log("Contacts:", route.params.contacts)
   let lat = 39.33136;
   let lng = -76.63226;
 
