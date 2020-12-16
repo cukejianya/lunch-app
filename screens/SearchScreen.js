@@ -111,8 +111,11 @@ export default function SearchScreen({ navigation, route }) {
   let lat = 39.33136;
   let lng = -76.63226;
 
+  console.log('Search', search);
   var variables = { title: search, lat, lng} 
   const {loading, error, data} = useQuery(SEARCH, { variables })
+  console.log('Loading:', loading);
+  console.log('Error:', error);
   const onSelect = (item) => {
     console.log('Item: ', item)
     setInputFocus(false)
@@ -123,6 +126,7 @@ export default function SearchScreen({ navigation, route }) {
   //  console.log(error, search)
   //}
   if (isInputFocus) {
+    console.log('Data:', data);
     result = (
        <FlatList
          data={(data || {}).searchPlace}
@@ -146,7 +150,7 @@ export default function SearchScreen({ navigation, route }) {
           style={styles.loginInput}
           autoCapitalize='none'
           placeholder='Pick A Lunch Spot'
-          onChangeText={setSearch}
+          onChangeText={(text) => {setSearch(text); console.log(text);}}
           onFocus={() => setInputFocus(true)}
           value={search}
          />

@@ -15,7 +15,6 @@ import { Ionicons } from '@expo/vector-icons'
 
 function Item({ isSelected, item, onSelect }) {
   const color = isSelected ? "green" : "black";
-  console.log(color);
   return (
     <TouchableOpacity
       onPress={() => onSelect(item.id)}
@@ -71,7 +70,6 @@ export default function ContactScreen({ navigation }) {
     setSelected(new Set(selected.delete(id) ? selected : selected.add(id)));
   }, [selected]);
 
-  console.log(selected)
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>

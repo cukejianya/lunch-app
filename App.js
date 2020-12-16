@@ -1,4 +1,4 @@
-import { AppLoading } from 'expo';
+import AppLoading from 'expo-app-loading';
 import { Asset } from 'expo-asset';
 import * as Font from 'expo-font';
 import React, { useState } from 'react';
@@ -12,7 +12,7 @@ import { HttpLink } from 'apollo-link-http';
 import AppNavigator from './navigation/AppNavigator';
 const cache = new InMemoryCache();
 const link = new HttpLink({
-  uri: 'http://localhost:3000/graphql',
+  uri: 'http://192.168.1.159:3000/graphql',
 });
 
 const client = new ApolloClient({
@@ -22,6 +22,7 @@ const client = new ApolloClient({
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
+  console.log(ApolloClient);
 
   if (!isLoadingComplete && !props.skipLoadingScreen) {
     return (
